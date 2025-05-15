@@ -1,0 +1,12 @@
+model Payment {
+  id          String  @id @default(uuid())
+  bookingId   String  @relation(fields: [bookingId], references: [id])
+  customerId  String  @relation(fields: [customerId], references: [id])
+  amount      Float
+  status      String  // 'Paid', 'Failed'
+  method      String  // 'UPI', 'Card', 'Cash on Delivery'
+  createdAt   DateTime @default(now())
+
+  booking     Booking @relation(fields: [bookingId], references: [id])
+  customer    User    @relation(fields: [customerId], references: [id])
+}

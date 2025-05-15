@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String  @id @default(uuid())
+  firstname String
+  lastname  String
+  email     String  @unique
+  password  String
+  phone     String
+  address   String
+  role      String  // 'customer' or 'technician'
+  lat       Float
+  lng       Float
+  rating    Float?  // Only for technicians
+  createdAt DateTime @default(now())
+
+  customerBookings  Booking[] @relation("CustomerBookings")
+  technicianBookings Booking[] @relation("TechnicianBookings")
+  payments Payment[]
+}
+
+model Service {
+  id          String @id @default(uuid())
+  name        String
+  description String
+  price       Float
+  category    String  // 'Mobile', 'Laptop', 'TV', etc.
+  estimatedTime String
+  createdAt   DateTime @default(now())
+
+  bookings    Booking[]
+}
+
+model Booking {
+  id              String  @id @default(uuid())
+  customerId      String  
+  technicianId    String?  
+  serviceId       String  
+
+  customer        User  @relation("CustomerBookings", fields: [customerId], references: [id])
+  technician      User? @relation("TechnicianBookings", fields: [technicianId], references: [id])
+  service         Service @relation(fields: [serviceId], references: [id])
+
+  status          String  // 'Pending', 'Assigned', 'Completed', 'Cancelled'
+  paymentStatus   String  // 'Paid', 'Pending'
+  paymentMethod   String  // 'Online', 'Cash on Delivery'
+  customerLat     Float
+  customerLng     Float
+  assignedAt      DateTime?
+  completedAt     DateTime?
+
+  payment         Payment? // ✅ Fixed relation by removing `@relation(fields: [id], references: [bookingId])`
+}
+
+model Payment {
+  id          String  @id @default(uuid())
+  bookingId   String  @unique  // ✅ Keep @unique to maintain one-to-one relation
+  customerId  String  
+
+  booking     Booking @relation(fields: [bookingId], references: [id]) // ✅ Keep reference here only
+  customer    User    @relation(fields: [customerId], references: [id])
+
+  amount      Float
+  status      String  // 'Paid', 'Failed'
+  method      String  // 'UPI', 'Card', 'Cash on Delivery'
+  createdAt   DateTime @default(now())
+}
+

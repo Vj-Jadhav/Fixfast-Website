@@ -1,0 +1,11 @@
+model Service {
+  id          String @id @default(uuid())
+  name        String
+  description String
+  price       Float
+  category    String  // 'Mobile', 'Laptop', 'TV', etc.
+  estimatedTime String
+  createdAt   DateTime @default(now())
+
+  bookings    Booking[]
+}

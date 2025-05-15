@@ -1,0 +1,17 @@
+model Booking {
+  id              String  @id @default(uuid())
+  customerId      String  @relation(fields: [customerId], references: [id])
+  technicianId    String? @relation(fields: [technicianId], references: [id])
+  serviceId       String  @relation(fields: [serviceId], references: [id])
+  status          String  // 'Pending', 'Assigned', 'Completed', 'Cancelled'
+  paymentStatus   String  // 'Paid', 'Pending'
+  paymentMethod   String  // 'Online', 'Cash on Delivery'
+  customerLat     Float
+  customerLng     Float
+  assignedAt      DateTime?
+  completedAt     DateTime?
+
+  customer   User @relation(fields: [customerId], references: [id])
+  technician User? @relation(fields: [technicianId], references: [id])
+  service    Service @relation(fields: [serviceId], references: [id])
+}
